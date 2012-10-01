@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 15.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1"
+	 id="svg3239" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" inkscape:version="0.48.2 r9819" xmlns:svg="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" sodipodi:docname="New document 12"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="227px" height="100px"
+	 viewBox="0 0 227 100" enable-background="new 0 0 227 100" xml:space="preserve">
+<sodipodi:namedview  inkscape:window-maximized="0" inkscape:window-y="49" inkscape:window-x="4" inkscape:window-height="419" inkscape:window-width="496" fit-margin-bottom="0" fit-margin-right="0" fit-margin-left="0" fit-margin-top="0" showgrid="false" inkscape:current-layer="layer1" inkscape:document-units="px" inkscape:cy="49.999998" inkscape:cx="50.000002" inkscape:zoom="0.35" inkscape:pageshadow="2" inkscape:pageopacity="0.0" borderopacity="1.0" bordercolor="#666666" pagecolor="#ffffff" id="base">
+	</sodipodi:namedview>
+<path id="path4018" sodipodi:cx="244.28572" sodipodi:cy="553.79077" sodipodi:type="arc" sodipodi:rx="127.14286" sodipodi:ry="127.14286" fill="#333333" d="
+	M90.244,49.481c0,21.95-17.794,39.744-39.744,39.744c-21.949,0-39.744-17.794-39.744-39.744S28.551,9.737,50.5,9.737
+	C72.45,9.737,90.244,27.531,90.244,49.481z"/>
+<text transform="matrix(1 0 0 1 94.5 68.5)" font-family="'OCRAStd'" font-size="49" letter-spacing="-3">PING</text>
+<text transform="matrix(1 0 0 1 163.9385 83)" fill="#333333" font-family="'OCRAStd'" font-size="12">for PHP</text>
+<g>
+	<polyline fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" points="71.712,37.319 
+		54.663,52.519 46.538,44.394 29.288,61.644 	"/>
+	
+		<circle fill="#333333" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" cx="71.712" cy="37.319" r="7.55"/>
+	
+		<circle fill="#333333" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" cx="29.287" cy="61.644" r="7.55"/>
+</g>
+</svg>

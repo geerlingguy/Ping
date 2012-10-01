@@ -1,3 +1,4 @@
+<img src="http://github.com/geerlingguy/Ping/raw/1.x/Resources/Ping-Logo.png" alt="Ping for PHP Logo" />
 
 # Ping
 
