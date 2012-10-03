@@ -6,17 +6,14 @@
  * This class pings a host.
  *
  * The ping() method pings a server using 'exec', 'socket', or 'fsockopen', and
- * and returns FALSE if the server is unreachable within the given timeout, or
- * the latency in milliseconds if the server is reachable.
+ * and returns FALSE if the server is unreachable within the given ttl/timeout,
+ * or the latency in milliseconds if the server is reachable.
  *
  * Example usage:
  * @code
  *   $ping = new Ping('www.example.com');
  *   $latency = $ping->ping();
  * @endcode
- *
- * More usage examples can be found in the included README file, and all methods
- * should have adequate documentation to get you started.
  *
  * @version 1.0-beta1
  * @author Jeff Geerling.
@@ -25,7 +22,7 @@
 class Ping {
 
   private $host;
-  private $timeout;
+  private $ttl;
   private $data = 'Ping';
 
   /**
@@ -33,30 +30,41 @@ class Ping {
    *
    * @param $host (string)
    *   The host to be pinged.
-   * @param $timeout (int)
-   *   Timeout in seconds.
+   * @param $ttl (int)
+   *   Time-to-live (TTL) (You may get a 'Time to live exceeded' error if this
+   *   value is set too low. The TTL value indicates the scope or range in which
+   *   a packet may be forwarded. By convention:
+   *     - 0 = same host
+   *     - 1 = same subnet
+   *     - 32 = same site
+   *     - 64 = same region
+   *     - 128 = same continent
+   *     - 255 = unrestricted
+   *   The TTL is also used as a general 'timeout' value for fsockopen(), so if
+   *   you are using that method, you might want to set a default of 5-10 sec to
+   *   avoid blocking network connections.
    *
    * @return (empty)
    */
-  public function __construct($host, $timeout = 5) {
+  public function __construct($host, $ttl = 255) {
     if (!isset($host)) {
       throw new Exception("Error: Host name not supplied.");
     }
 
     $this->host = $host;
-    $this->timeout = $timeout;
+    $this->ttl = $ttl;
   }
 
   /**
-   * Set the timeout (in seconds).
+   * Set the ttl (in hops).
    *
-   * @param $timeout (int)
-   *   Timeout in seconds.
+   * @param $ttl (int)
+   *   TTL in hops.
    *
    * @return (empty)
    */
-  public function setTimeout($timeout) {
-    $this->timeout = $timeout;
+  public function setTtl($ttl) {
+    $this->ttl = $ttl;
   }
 
   /**
@@ -93,10 +101,10 @@ class Ping {
       // passes the input to the system. This is potentially VERY dangerous if
       // you pass in any user-submitted data. Be SURE you sanitize your inputs!
       case 'exec':
-        $timeout = escapeshellcmd($this->timeout);
+        $ttl = escapeshellcmd($this->ttl);
         $host = escapeshellcmd($this->host);
-        // -n = numeric output; -c = number of pings; -t = timeout.
-        $str = exec('ping -n -c 1 -t ' . $timeout . ' ' . $host, $output, $return);
+        // -n = numeric output; -c = number of pings; -t = ttl.
+        $str = exec('ping -n -c 1 -t ' . $ttl . ' ' . $host, $output, $return);
         // Second output line contains result of ping. Parse if not empty.
         if (!empty($output[1])) {
           $array = explode(' ', $output[1]);
@@ -115,7 +123,7 @@ class Ping {
       // Even if a host doesn't respond, fsockopen may still make a connection.
       case 'fsockopen':
         $start = microtime(true);
-        $fp = fsockopen($this->host, 80, $errno, $errstr, $this->timeout);
+        $fp = fsockopen($this->host, 80, $errno, $errstr, $this->ttl);
         if (!$fp) {
           $latency = false;
         }
