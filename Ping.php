@@ -103,13 +103,32 @@ class Ping {
       case 'exec':
         $ttl = escapeshellcmd($this->ttl);
         $host = escapeshellcmd($this->host);
-        // -n = numeric output; -c = number of pings; -t = ttl.
-        $str = exec('ping -n -c 1 -t ' . $ttl . ' ' . $host, $output, $return);
-        // Second output line contains result of ping. Parse if not empty.
-        if (!empty($output[1])) {
-          $array = explode(' ', $output[1]);
-          // Remove 'time=' from string.
-          $latency = str_replace('time=', '', $array[6]);
+        // Exec string for Windows-based systems.
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+          // -n = number of pings; -i = ttl.
+          $exec_string = 'ping -n 1 -i ' . $ttl . ' ' . $host;
+          $host_type = 'windows';
+          $result_line = 2;
+          $time_param = 4;
+        }
+        // Exec string for UNIX-based systems (Mac, Linux).
+        else {
+          // -n = numeric output; -c = number of pings; -t = ttl.
+          $exec_string = 'ping -n -c 1 -t ' . $ttl . ' ' . $host;
+          $host_type = 'unix';
+          $result_line = 1;
+          $time_param = 6;
+        }
+        $str = exec($exec_string, $output, $return);
+        // If the result line in the output is not empty, parse it.
+        if (!empty($output[$result_line])) {
+          $array = explode(' ', $output[$result_line]);
+          // Remove 'time=' from latency stat.
+          $latency = str_replace('time=', '', $array[$time_param]);
+          // If on a windows machine, also remove the 'ms'.
+          if ($host_type == 'windows') {
+            $latency = str_replace('ms', '', $latency);
+          }
           // Convert latency to microseconds.
           $latency = round($latency);
         }
