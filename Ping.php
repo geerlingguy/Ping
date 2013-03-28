@@ -123,14 +123,20 @@ class Ping {
         // If the result line in the output is not empty, parse it.
         if (!empty($output[$result_line])) {
           $array = explode(' ', $output[$result_line]);
-          // Remove 'time=' from latency stat.
-          $latency = str_replace('time=', '', $array[$time_param]);
-          // If on a windows machine, also remove the 'ms'.
-          if ($host_type == 'windows') {
-            $latency = str_replace('ms', '', $latency);
+          // If the time parameter is missing, the host is unreachable.
+          if (!isset($array[$time_param])) {
+            $latency = false;
           }
-          // Convert latency to microseconds.
-          $latency = round($latency);
+          else {
+            // Remove 'time=' from latency stat.
+            $latency = str_replace('time=', '', $array[$time_param]);
+            // If on a windows machine, also remove the 'ms'.
+            if ($host_type == 'windows') {
+              $latency = str_replace('ms', '', $latency);
+            }
+            // Convert latency to microseconds.
+            $latency = round($latency);
+          }
         }
         else {
           $latency = false;
