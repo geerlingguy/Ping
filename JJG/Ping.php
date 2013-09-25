@@ -9,8 +9,10 @@
  * and returns FALSE if the server is unreachable within the given ttl/timeout,
  * or the latency in milliseconds if the server is reachable.
  *
- * Example usage:
+ * Quick Start:
  * @code
+ *   include 'path/to/Ping/JJG/Ping.php';
+ *   use \JJG\Ping as Ping;
  *   $ping = new Ping('www.example.com');
  *   $latency = $ping->ping();
  * @endcode
