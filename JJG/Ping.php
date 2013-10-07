@@ -21,6 +21,8 @@
  * @author Jeff Geerling.
  */
 
+namespace JJG;
+
 class Ping {
 
   private $host;
