@@ -9,6 +9,6 @@
         }
     ],
     "autoload": {
-        "classmap": [ "Ping.php" ]
+        "classmap": [ "JJG/Ping.php" ]
     }
 }
