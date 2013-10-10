@@ -27,14 +27,15 @@ class Ping {
 
   private $host;
   private $ttl;
+  private $port = 80;
   private $data = 'Ping';
 
   /**
    * Called when the Ping object is created.
    *
-   * @param $host (string)
+   * @param string $host
    *   The host to be pinged.
-   * @param $ttl (int)
+   * @param int $ttl
    *   Time-to-live (TTL) (You may get a 'Time to live exceeded' error if this
    *   value is set too low. The TTL value indicates the scope or range in which
    *   a packet may be forwarded. By convention:
@@ -47,8 +48,6 @@ class Ping {
    *   The TTL is also used as a general 'timeout' value for fsockopen(), so if
    *   you are using that method, you might want to set a default of 5-10 sec to
    *   avoid blocking network connections.
-   *
-   * @return (empty)
    */
   public function __construct($host, $ttl = 255) {
     if (!isset($host)) {
@@ -62,10 +61,8 @@ class Ping {
   /**
    * Set the ttl (in hops).
    *
-   * @param $ttl (int)
+   * @param int $ttl
    *   TTL in hops.
-   *
-   * @return (empty)
    */
   public function setTtl($ttl) {
     $this->ttl = $ttl;
@@ -74,19 +71,31 @@ class Ping {
   /**
    * Set the host.
    *
-   * @param $host (string)
+   * @param string $host
    *   Host name or IP address.
-   *
-   * @return (empty)
    */
   public function setHost($host) {
     $this->host = $host;
   }
 
   /**
+   * Set the port (only used for fsockopen method).
+   *
+   * Since regular pings use ICMP and don't need to worry about the concept of
+   * 'ports', this is only used for the fsockopen method, which pings servers by
+   * checking port 80 (by default).
+   *
+   * @param int $port
+   *   Port to use for fsockopen ping (defaults to 80 if not set).
+   */
+  public function setPort($port) {
+    $this->port = $port;
+  }
+
+  /**
    * Ping a host.
    *
-   * @param $method (string)
+   * @param string $method
    *   Method to use when pinging:
    *     - exec (default): Pings through the system ping command. Fast and
    *       robust, but a security risk if you pass through user-submitted data.
@@ -94,7 +103,7 @@ class Ping {
    *     - socket: Creates a RAW network socket. Only usable in some
    *       environments, as creating a SOCK_RAW socket requires root privileges.
    *
-   * @return (mixed)
+   * @return mixed
    *   Latency as integer, in ms, if host is reachable or FALSE if host is down.
    */
   public function ping($method = 'exec') {
@@ -147,12 +156,12 @@ class Ping {
         }
         break;
 
-      // The fsockopen method simply tries to reach the host on port 80. This
+      // The fsockopen method simply tries to reach the host on a port. This
       // method is often the fastest, but not necessarily the most reliable.
       // Even if a host doesn't respond, fsockopen may still make a connection.
       case 'fsockopen':
         $start = microtime(true);
-        $fp = fsockopen($this->host, 80, $errno, $errstr, $this->ttl);
+        $fp = fsockopen($this->host, $this->port, $errno, $errstr, $this->ttl);
         if (!$fp) {
           $latency = false;
         }
@@ -173,16 +182,16 @@ class Ping {
         $code = "\x00";
         $checksum = "\x00\x00";
         $identifier = "\x00\x00";
-        $seqNumber = "\x00\x00";
-        $package = $type . $code . $checksum . $identifier . $seqNumber . $this->data;
+        $seq_number = "\x00\x00";
+        $package = $type . $code . $checksum . $identifier . $seq_number . $this->data;
 
         // Calculate the checksum.
-        $checksum = $this->calculateChecksum($package); // Calculate the checksum.
+        $checksum = $this->calculateChecksum($package);
 
         // Finalize the package.
-        $package = $type . $code . $checksum . $identifier . $seqNumber . $this->data;
+        $package = $type . $code . $checksum . $identifier . $seq_number . $this->data;
 
-        // Create a socket, connect to server, then read the socket and calculate.
+        // Create a socket, connect to server, then read socket and calculate.
         if ($socket = socket_create(AF_INET, SOCK_RAW, 1)) {
           socket_connect($socket, $this->host, null);
           $start = microtime(true);
@@ -213,14 +222,14 @@ class Ping {
   /**
    * Calculate a checksum.
    *
-   * @param $data (string)
+   * @param string $data
    *   Data for which checksum will be calculated.
    *
-   * @return (string)
+   * @return string
    *   Binary string checksum of $data.
    */
   private function calculateChecksum($data) {
-    if (strlen($data)%2) {
+    if (strlen($data) % 2) {
       $data .= "\x00";
     }
 
