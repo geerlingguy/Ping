@@ -26,18 +26,18 @@ else {
 }
 ```
 
-You can also specify the timeout when creating the instance:
+You can also specify the ttl (maximum hops) when creating the instance:
 
 ```php
-$timeout = 10;
-$ping = new Ping($host, $timeout);
+$ttl = 128;
+$ping = new Ping($host, $ttl);
 ```
 
-...or using the `setTimeout()` method:
+...or using the `setTtl()` method:
 
 ```php
 $ping = new Ping($host);
-$ping->setTimeout(10);
+$ping->setTtl(128);
 ```
 
 You can change the host using the `setHost()` method:
