@@ -18,7 +18,7 @@ This is a very simple class. Just create an instance, and run `ping()`.
 $host = 'www.example.com';
 $ping = new Ping($host);
 $latency = $ping->ping();
-if ($latency) {
+if ($latency !== false) {
   print 'Latency is ' . $latency . ' ms';
 }
 else {
