@@ -17,7 +17,7 @@
  *   $latency = $ping->ping();
  * @endcode
  *
- * @version 1.0-beta1
+ * @version 1.0.0
  * @author Jeff Geerling.
  */
 
