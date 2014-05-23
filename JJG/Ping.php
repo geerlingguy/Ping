@@ -29,6 +29,7 @@ class Ping {
   private $ttl;
   private $port = 80;
   private $data = 'Ping';
+  private $timeout = 5; //in second
 
   /**
    * Called when the Ping object is created.
@@ -45,9 +46,6 @@ class Ping {
    *     - 64 = same region
    *     - 128 = same continent
    *     - 255 = unrestricted
-   *   The TTL is also used as a general 'timeout' value for fsockopen(), so if
-   *   you are using that method, you might want to set a default of 5-10 sec to
-   *   avoid blocking network connections.
    */
   public function __construct($host, $ttl = 255) {
     if (!isset($host)) {
@@ -68,6 +66,15 @@ class Ping {
     $this->ttl = $ttl;
   }
 
+  /**
+   * Set the timeout value
+   *
+   * @param int $timeout
+   * in sec
+   */
+  public function setTimeout($timeout) {
+    $this->timeout = intval($timeout);
+  }
   /**
    * Set the host.
    *
@@ -118,24 +125,34 @@ class Ping {
         $host = escapeshellcmd($this->host);
         // Exec string for Windows-based systems.
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-          // -n = number of pings; -i = ttl.
-          $exec_string = 'ping -n 1 -i ' . $ttl . ' ' . $host;
+          // -n = number of pings; -i = ttl; -w = timeout in milliseconds.
+          $milli_sec_timeout = $this->timeout * 1000; //convert from s to ms
+          $timeout_string = '';
+          if ($milli_sec_timeout > 0) $timeout_string = ' -w '.$milli_sec_timeout.' ';
+
+          $exec_string = 'ping -n 1 -i ' . $ttl . $timeout_string . ' ' . $host;
           $host_type = 'windows';
           $result_line = 2;
           $time_param = 4;
         }
         // Exec string for Mac
         else if (strtoupper(PHP_OS) === 'DARWIN') {
-          // -n = numeric output; -c = number of pings; -m = ttl.
-          $exec_string = 'ping -n -c 1 -m ' . $ttl . ' ' . $host;
+          // -n = numeric output; -c = number of pings; -m = ttl; -t = timeout in seconds.
+          $timeout_string = '';
+          if ($this->timeout > 0) $timeout_string = ' -t '.$this->timeout.' ';
+      
+          $exec_string = 'ping -n -c 1 -m ' . $ttl . $timeout_string . ' ' . $host;
           $host_type = 'macintosh';
           $result_line = 1;
           $time_param = 6;
         }
         // Exec string for UNIX-based systems (Mac, Linux).
         else {
-          // -n = numeric output; -c = number of pings; -t = ttl.
-          $exec_string = 'ping -n -c 1 -t ' . $ttl . ' ' . $host;
+          // -n = numeric output; -c = number of pings; -t = ttl; -w = timeout in seconds.
+          $timeout_string = '';
+          if ($this->timeout > 0) $timeout_string = ' -w '.$this->timeout.' ';
+      
+          $exec_string = 'ping -n -c 1 -t ' . $ttl . $timeout_string . ' ' . $host;
           $host_type = 'unix';
           $result_line = 1;
           $time_param = 6;
@@ -169,7 +186,7 @@ class Ping {
       // Even if a host doesn't respond, fsockopen may still make a connection.
       case 'fsockopen':
         $start = microtime(true);
-        $fp = fsockopen($this->host, $this->port, $errno, $errstr, $this->ttl);
+        $fp = fsockopen($this->host, $this->port, $errno, $errstr, $this->timeout);
         if (!$fp) {
           $latency = false;
         }
