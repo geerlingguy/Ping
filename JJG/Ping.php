@@ -124,6 +124,14 @@ class Ping {
           $result_line = 2;
           $time_param = 4;
         }
+        // Exec string for Mac
+        else if (strtoupper(PHP_OS) === 'DARWIN') {
+          // -n = numeric output; -c = number of pings; -m = ttl.
+          $exec_string = 'ping -n -c 1 -m ' . $ttl . ' ' . $host;
+          $host_type = 'macintosh';
+          $result_line = 1;
+          $time_param = 6;
+        }
         // Exec string for UNIX-based systems (Mac, Linux).
         else {
           // -n = numeric output; -c = number of pings; -t = ttl.
