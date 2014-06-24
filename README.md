@@ -1,4 +1,4 @@
-<img src="https://github.com/geerlingguy/Ping/raw/1.x/Resources/Ping-Logo.png" alt="Ping for PHP Logo" />
+<img src="https://raw.githubusercontent.com/geerlingguy/Ping/1.x/Resources/Ping-Logo.png" alt="Ping for PHP Logo" />
 
 # Ping
 
