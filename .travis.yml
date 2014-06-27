@@ -8,4 +8,4 @@ php:
   - 5.4
   - 5.5
 
-script: phpunit --coverage-text
+script: phpunit --coverage-text JJG/PingTest.php
