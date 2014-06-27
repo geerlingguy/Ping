@@ -2,6 +2,8 @@
 
 # Ping
 
+[![Build Status](https://travis-ci.org/geerlingguy/Ping.svg?branch=master)](https://travis-ci.org/geerlingguy/Ping)
+
 A PHP class to ping hosts.
 
 There are a ton of different methods of pinging a server using PHP, and I've found most to be poorly documented or downright dangerous in their implementation.

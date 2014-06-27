@@ -69,6 +69,16 @@ class Ping {
   }
 
   /**
+   * Get the ttl.
+   *
+   * @return int
+   *   The current ttl for Ping.
+   */
+  public function getTtl() {
+    return $this->ttl;
+  }
+
+  /**
    * Set the host.
    *
    * @param string $host
@@ -76,6 +86,16 @@ class Ping {
    */
   public function setHost($host) {
     $this->host = $host;
+  }
+
+  /**
+   * Get the host.
+   *
+   * @return string
+   *   The current hostname for Ping.
+   */
+  public function getHost() {
+    return $this->host;
   }
 
   /**
@@ -90,6 +110,16 @@ class Ping {
    */
   public function setPort($port) {
     $this->port = $port;
+  }
+
+  /**
+   * Get the port (only used for fsockopen method).
+   *
+   * @return int
+   *   The port used by fsockopen pings.
+   */
+  public function getPort() {
+    return $this->port;
   }
 
   /**
@@ -110,112 +140,150 @@ class Ping {
     $latency = false;
 
     switch ($method) {
-      // The exec method uses the possibly insecure exec() function, which
-      // passes the input to the system. This is potentially VERY dangerous if
-      // you pass in any user-submitted data. Be SURE you sanitize your inputs!
       case 'exec':
-        $ttl = escapeshellcmd($this->ttl);
-        $host = escapeshellcmd($this->host);
-        // Exec string for Windows-based systems.
-        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-          // -n = number of pings; -i = ttl.
-          $exec_string = 'ping -n 1 -i ' . $ttl . ' ' . $host;
-          $host_type = 'windows';
-          $result_line = 2;
-          $time_param = 4;
-        }
-        // Exec string for UNIX-based systems (Mac, Linux).
-        else {
-          // -n = numeric output; -c = number of pings; -t = ttl.
-          $exec_string = 'ping -n -c 1 -t ' . $ttl . ' ' . $host;
-          $host_type = 'unix';
-          $result_line = 1;
-          $time_param = 6;
-        }
-        $str = exec($exec_string, $output, $return);
-        // If the result line in the output is not empty, parse it.
-        if (!empty($output[$result_line])) {
-          $array = explode(' ', $output[$result_line]);
-          // If the time parameter is missing, the host is unreachable.
-          if (!isset($array[$time_param])) {
-            $latency = false;
-          }
-          else {
-            // Remove 'time=' from latency stat.
-            $latency = str_replace('time=', '', $array[$time_param]);
-            // If on a windows machine, also remove the 'ms'.
-            if ($host_type == 'windows') {
-              $latency = str_replace('ms', '', $latency);
-            }
-            // Convert latency to microseconds.
-            $latency = round($latency);
-          }
-        }
-        else {
-          $latency = false;
-        }
+        $latency = $this->pingExec();
         break;
 
-      // The fsockopen method simply tries to reach the host on a port. This
-      // method is often the fastest, but not necessarily the most reliable.
-      // Even if a host doesn't respond, fsockopen may still make a connection.
       case 'fsockopen':
-        $start = microtime(true);
-        $fp = fsockopen($this->host, $this->port, $errno, $errstr, $this->ttl);
-        if (!$fp) {
-          $latency = false;
-        }
-        else {
-          $latency = microtime(true) - $start;
-          $latency = round($latency * 1000);
-        }
+        $latency = $this->pingFsockopen();
         break;
 
-      // The socket method uses raw network packet data to try sending an ICMP
-      // ping packet to a server, then measures the response time. Using this
-      // method requires the script to be run with root privileges, though, so
-      // this method only works reliably on Windows systems and on Linux servers
-      // where the script is not being run as a web user.
       case 'socket':
-        // Create a package.
-        $type = "\x08";
-        $code = "\x00";
-        $checksum = "\x00\x00";
-        $identifier = "\x00\x00";
-        $seq_number = "\x00\x00";
-        $package = $type . $code . $checksum . $identifier . $seq_number . $this->data;
-
-        // Calculate the checksum.
-        $checksum = $this->calculateChecksum($package);
-
-        // Finalize the package.
-        $package = $type . $code . $checksum . $identifier . $seq_number . $this->data;
-
-        // Create a socket, connect to server, then read socket and calculate.
-        if ($socket = socket_create(AF_INET, SOCK_RAW, 1)) {
-          socket_connect($socket, $this->host, null);
-          $start = microtime(true);
-          // Send the package.
-          socket_send($socket, $package, strlen($package), 0);
-          if (socket_read($socket, 255) !== false) {
-            $latency = microtime(true) - $start;
-            $latency = round($latency * 1000);
-          }
-          else {
-            $latency = false;
-          }
-          // Close the socket.
-          socket_close($socket);
-        }
-        else {
-          $latency = false;
-        }
-        // Close the socket.
-        socket_close($socket);
+        $latency = $this->pingSocket();
         break;
     }
 
     // Return the latency.
+    return $latency;
+  }
+
+  /**
+   * The exec method uses the possibly insecure exec() function, which passes
+   * the input to the system. This is potentially VERY dangerous if you pass in
+   * any user-submitted data. Be SURE you sanitize your inputs!
+   *
+   * @return int
+   *   Latency, in ms.
+   */
+  private function pingExec() {
+    $latency = false;
+
+    $ttl = escapeshellcmd($this->ttl);
+    $host = escapeshellcmd($this->host);
+    // Exec string for Windows-based systems.
+    if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+      // -n = number of pings; -i = ttl.
+      $exec_string = 'ping -n 1 -i ' . $ttl . ' ' . $host;
+      $host_type = 'windows';
+      $result_line = 2;
+      $time_param = 4;
+    }
+    // Exec string for UNIX-based systems (Mac, Linux).
+    else {
+      // -n = numeric output; -c = number of pings; -t = ttl.
+      $exec_string = 'ping -n -c 1 -t ' . $ttl . ' ' . $host;
+      $host_type = 'unix';
+      $result_line = 1;
+      $time_param = 6;
+    }
+    $str = exec($exec_string, $output, $return);
+    // If the result line in the output is not empty, parse it.
+    if (!empty($output[$result_line])) {
+      $array = explode(' ', $output[$result_line]);
+      // If the time parameter is missing, the host is unreachable.
+      if (!isset($array[$time_param])) {
+        $latency = false;
+      }
+      else {
+        // Remove 'time=' from latency stat.
+        $latency = str_replace('time=', '', $array[$time_param]);
+        // If on a windows machine, also remove the 'ms'.
+        if ($host_type == 'windows') {
+          $latency = str_replace('ms', '', $latency);
+        }
+        // Convert latency to microseconds.
+        $latency = round($latency);
+      }
+    }
+    else {
+      $latency = false;
+    }
+
+    return $latency;
+  }
+
+  /**
+   * The fsockopen method simply tries to reach the host on a port. This method
+   * is often the fastest, but not necessarily the most reliable. Even if a host
+   * doesn't respond, fsockopen may still make a connection.
+   *
+   * @return int
+   *   Latency, in ms.
+   */
+  private function pingFsockopen() {
+    $start = microtime(true);
+    // fsockopen prints a bunch of errors if a host is unreachable. Hide those
+    // irrelevant errors and deal with the results instead.
+    $fp = @fsockopen($this->host, $this->port, $errno, $errstr, $this->ttl);
+    if (!$fp) {
+      $latency = false;
+    }
+    else {
+      $latency = microtime(true) - $start;
+      $latency = round($latency * 1000);
+    }
+    return $latency;
+  }
+
+  /**
+   * The socket method uses raw network packet data to try sending an ICMP ping
+   * packet to a server, then measures the response time. Using this method
+   * requires the script to be run with root privileges, though, so this method
+   * only works reliably on Windows systems and on Linux servers where the
+   * script is not being run as a web user.
+   *
+   * @return int
+   *   Latency, in ms.
+   */
+  private function pingSocket() {
+    // Create a package.
+    $type = "\x08";
+    $code = "\x00";
+    $checksum = "\x00\x00";
+    $identifier = "\x00\x00";
+    $seq_number = "\x00\x00";
+    $package = $type . $code . $checksum . $identifier . $seq_number . $this->data;
+
+    // Calculate the checksum.
+    $checksum = $this->calculateChecksum($package);
+
+    // Finalize the package.
+    $package = $type . $code . $checksum . $identifier . $seq_number . $this->data;
+
+    // Create a socket, connect to server, then read socket and calculate.
+    if ($socket = socket_create(AF_INET, SOCK_RAW, 1)) {
+      socket_set_option($socket, SOL_SOCKET, SO_RCVTIMEO, array(
+        'sec' => 10,
+        'usec' => 0,
+      ));
+      // Prevent errors from being printed when host is unreachable.
+      @socket_connect($socket, $this->host, null);
+      $start = microtime(true);
+      // Send the package.
+      @socket_send($socket, $package, strlen($package), 0);
+      if (socket_read($socket, 255) !== false) {
+        $latency = microtime(true) - $start;
+        $latency = round($latency * 1000);
+      }
+      else {
+        $latency = false;
+      }
+    }
+    else {
+      $latency = false;
+    }
+    // Close the socket.
+    socket_close($socket);
     return $latency;
   }
 
