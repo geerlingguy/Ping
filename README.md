@@ -2,7 +2,7 @@
 
 # Ping
 
-[![Build Status](https://travis-ci.org/geerlingguy/Ping.svg?branch=master)](https://travis-ci.org/geerlingguy/Ping)
+[![Build Status](https://travis-ci.org/geerlingguy/Ping.svg?branch=1.x)](https://travis-ci.org/geerlingguy/Ping)
 
 A PHP class to ping hosts.
 
