@@ -8,5 +8,4 @@ php:
   - 5.5
 
 script:
-  - which phpunit
-  - phpunit --coverage-text JJG/PingTest.php
+  - sudo /home/travis/.phpenv/shims/phpunit --coverage-text JJG/PingTest.php
