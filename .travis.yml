@@ -7,4 +7,6 @@ php:
   - 5.4
   - 5.5
 
-script: sudo phpunit --coverage-text JJG/PingTest.php
+script:
+  - which phpunit
+  - phpunit --coverage-text JJG/PingTest.php
