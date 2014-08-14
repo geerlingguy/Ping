@@ -175,7 +175,6 @@ class Ping {
       // -n = number of pings; -i = ttl.
       $exec_string = 'ping -n 1 -i ' . $ttl . ' ' . $host;
       $host_type = 'windows';
-      $result_line = 2;
       $time_param = 4;
     }
     // Exec string for UNIX-based systems (Mac, Linux).
@@ -183,13 +182,16 @@ class Ping {
       // -n = numeric output; -c = number of pings; -t = ttl.
       $exec_string = 'ping -n -c 1 -t ' . $ttl . ' ' . $host;
       $host_type = 'unix';
-      $result_line = 1;
       $time_param = 6;
     }
     $str = exec($exec_string, $output, $return);
+
+    // Strip empty lines (make results more uniform across OS versions).
+    $output = array_filter($output);
+
     // If the result line in the output is not empty, parse it.
-    if (!empty($output[$result_line])) {
-      $array = explode(' ', $output[$result_line]);
+    if (!empty($output[1])) {
+      $array = explode(' ', $output[1]);
       // If the time parameter is missing, the host is unreachable.
       if (!isset($array[$time_param])) {
         $latency = false;
