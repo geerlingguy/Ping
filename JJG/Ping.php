@@ -174,44 +174,37 @@ class Ping {
     if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
       // -n = number of pings; -i = ttl.
       $exec_string = 'ping -n 1 -i ' . $ttl . ' ' . $host;
-      $host_type = 'windows';
-      $time_param = 4;
     }
     // Exec string for UNIX-based systems (Mac, Linux).
     else {
       // -n = numeric output; -c = number of pings; -t = ttl.
       $exec_string = 'ping -n -c 1 -t ' . $ttl . ' ' . $host;
-      $host_type = 'unix';
-      $time_param = 6;
     }
+
     $str = exec($exec_string, $output, $return);
 
     // Strip empty lines (make results more uniform across OS versions).
     $output = array_filter($output);
 
+    //Reorder indexes from 0, 
+    $output = array_values($output);
+
     // If the result line in the output is not empty, parse it.
     if (!empty($output[1])) {
-      $array = explode(' ', $output[1]);
-      // If the time parameter is missing, the host is unreachable.
-      if (!isset($array[$time_param])) {
-        $latency = false;
-      }
-      else {
-        // Remove 'time=' from latency stat.
-        $latency = str_replace('time=', '', $array[$time_param]);
-        // If on a windows machine, also remove the 'ms'.
-        if ($host_type == 'windows') {
-          $latency = str_replace('ms', '', $latency);
-        }
-        // Convert latency to microseconds.
-        $latency = round($latency);
-      }
+
+      // $array = explode(' ', $output[1]);
+      $response = preg_match("/time(?:=|<)(?<time>[0-9]+)(?:|\s)ms/", $output[1], $matches);
+
+      if($response > 0 && isset($matches['time']))
+        $latency = round($matches['time']);
+
     }
     else {
       $latency = false;
     }
 
     return $latency;
+
   }
 
   /**
