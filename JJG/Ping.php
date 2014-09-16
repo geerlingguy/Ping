@@ -204,7 +204,7 @@ class Ping {
           $latency = str_replace('ms', '', $latency);
         }
         // Convert latency to microseconds.
-        $latency = round($latency);
+        $latency = is_numeric($latency) ? round($latency) : false;
       }
     }
     else {
