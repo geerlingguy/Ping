@@ -193,7 +193,7 @@ class Ping {
     if (!empty($output[1])) {
 
       // $array = explode(' ', $output[1]);
-      $response = preg_match("/time(?:=|<)(?<time>[0-9]+)(?:|\s)ms/", $output[1], $matches);
+      $response = preg_match("/time(?:=|<)(?<time>[\.0-9]+)(?:|\s)ms/", $output[1], $matches);
 
       if($response > 0 && isset($matches['time']))
         $latency = round($matches['time']);
