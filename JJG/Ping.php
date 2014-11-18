@@ -51,7 +51,7 @@ class Ping {
    */
   public function __construct($host, $ttl = 255) {
     if (!isset($host)) {
-      throw new Exception("Error: Host name not supplied.");
+      throw new \Exception("Error: Host name not supplied.");
     }
 
     $this->host = $host;
