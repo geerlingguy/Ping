@@ -208,9 +208,6 @@ class Ping {
         $latency = round($latency);
       }
     }
-    else {
-      $latency = false;
-    }
 
     return $latency;
   }
