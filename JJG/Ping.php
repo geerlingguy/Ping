@@ -185,7 +185,7 @@ class Ping {
       $host_type = 'unix';
       $time_param = 6;
     }
-    $str = exec($exec_string, $output, $return);
+    exec($exec_string, $output, $return);
 
     // Strip empty lines (make results more uniform across OS versions).
     $output = array_filter($output);
