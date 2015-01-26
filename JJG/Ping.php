@@ -48,6 +48,7 @@ class Ping {
    *   The TTL is also used as a general 'timeout' value for fsockopen(), so if
    *   you are using that method, you might want to set a default of 5-10 sec to
    *   avoid blocking network connections.
+   * @throws \Exception if the host is not set
    */
   public function __construct($host, $ttl = 255) {
     if (!isset($host)) {
