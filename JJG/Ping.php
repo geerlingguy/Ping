@@ -17,7 +17,7 @@
  *   $latency = $ping->ping();
  * @endcode
  *
- * @version 1.0.1
+ * @version 1.0.2
  * @author Jeff Geerling.
  */
 
@@ -48,10 +48,12 @@ class Ping {
    *   The TTL is also used as a general 'timeout' value for fsockopen(), so if
    *   you are using that method, you might want to set a default of 5-10 sec to
    *   avoid blocking network connections.
+   *
+   * @throws \Exception if the host is not set.
    */
   public function __construct($host, $ttl = 255) {
     if (!isset($host)) {
-      throw new Exception("Error: Host name not supplied.");
+      throw new \Exception("Error: Host name not supplied.");
     }
 
     $this->host = $host;
@@ -180,8 +182,7 @@ class Ping {
       // -n = numeric output; -c = number of pings; -t = ttl.
       $exec_string = 'ping -n -c 1 -t ' . $ttl . ' ' . $host;
     }
-
-    $str = exec($exec_string, $output, $return);
+    exec($exec_string, $output, $return);
 
     // Strip empty lines (make results more uniform across OS versions).
     $output = array_filter($output);
@@ -198,9 +199,6 @@ class Ping {
       if($response > 0 && isset($matches['time']))
         $latency = round($matches['time']);
 
-    }
-    else {
-      $latency = false;
     }
 
     return $latency;
