@@ -184,25 +184,22 @@ class Ping {
     }
     exec($exec_string, $output, $return);
 
-    // Strip empty lines (make results more uniform across OS versions).
-    $output = array_filter($output);
-
-    //Reorder indexes from 0, 
-    $output = array_values($output);
+    // Strip empty lines and reorder the indexes from 0 (to make results more
+    // uniform across OS versions).
+    $output = array_values(array_filter($output));
 
     // If the result line in the output is not empty, parse it.
     if (!empty($output[1])) {
-
-      // $array = explode(' ', $output[1]);
+      // Search for a 'time' value in the result line.
       $response = preg_match("/time(?:=|<)(?<time>[\.0-9]+)(?:|\s)ms/", $output[1], $matches);
 
-      if($response > 0 && isset($matches['time']))
+      // If there's a result and it's greater than 0, return the latency.
+      if ($response > 0 && isset($matches['time'])) {
         $latency = round($matches['time']);
-
+      }
     }
 
     return $latency;
-
   }
 
   /**
