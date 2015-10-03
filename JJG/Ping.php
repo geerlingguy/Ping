@@ -27,37 +27,41 @@ class Ping {
 
   private $host;
   private $ttl;
+  private $path;
   private $port = 80;
   private $data = 'Ping';
 
-  /**
-   * Called when the Ping object is created.
-   *
-   * @param string $host
-   *   The host to be pinged.
-   * @param int $ttl
-   *   Time-to-live (TTL) (You may get a 'Time to live exceeded' error if this
-   *   value is set too low. The TTL value indicates the scope or range in which
-   *   a packet may be forwarded. By convention:
-   *     - 0 = same host
-   *     - 1 = same subnet
-   *     - 32 = same site
-   *     - 64 = same region
-   *     - 128 = same continent
-   *     - 255 = unrestricted
-   *   The TTL is also used as a general 'timeout' value for fsockopen(), so if
-   *   you are using that method, you might want to set a default of 5-10 sec to
-   *   avoid blocking network connections.
-   *
-   * @throws \Exception if the host is not set.
-   */
-  public function __construct($host, $ttl = 255) {
+    /**
+     * Called when the Ping object is created.
+     *
+     * @param string $host
+     *   The host to be pinged.
+     * @param int $ttl
+     *   Time-to-live (TTL) (You may get a 'Time to live exceeded' error if this
+     *   value is set too low. The TTL value indicates the scope or range in which
+     *   a packet may be forwarded. By convention:
+     *     - 0 = same host
+     *     - 1 = same subnet
+     *     - 32 = same site
+     *     - 64 = same region
+     *     - 128 = same continent
+     *     - 255 = unrestricted
+     *   The TTL is also used as a general 'timeout' value for fsockopen(), so if
+     *   you are using that method, you might want to set a default of 5-10 sec to
+     *   avoid blocking network connections.
+     * @param string $path
+     *   Full path to your ping command. (e.g. /sbin/ping on OSX or /bin/ping on Linux)
+     *
+     * @throws \Exception if the host is not set.
+     */
+  public function __construct($host, $ttl = 255, $path = 'ping') {
     if (!isset($host)) {
       throw new \Exception("Error: Host name not supplied.");
     }
 
     $this->host = $host;
     $this->ttl = $ttl;
+    $this->path = $path;
   }
 
   /**
@@ -172,15 +176,16 @@ class Ping {
 
     $ttl = escapeshellcmd($this->ttl);
     $host = escapeshellcmd($this->host);
+    $path = escapeshellcmd($this->path);
     // Exec string for Windows-based systems.
     if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
       // -n = number of pings; -i = ttl.
-      $exec_string = 'ping -n 1 -i ' . $ttl . ' ' . $host;
+      $exec_string = $path . ' -n 1 -i ' . $ttl . ' ' . $host;
     }
     // Exec string for UNIX-based systems (Mac, Linux).
     else {
       // -n = numeric output; -c = number of pings; -t = ttl.
-      $exec_string = 'ping -n -c 1 -t ' . $ttl . ' ' . $host;
+      $exec_string = $path . ' -n -c 1 -t ' . $ttl . ' ' . $host;
     }
     exec($exec_string, $output, $return);
 
