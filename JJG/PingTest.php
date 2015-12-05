@@ -11,7 +11,7 @@ use JJG\Ping as Ping;
 
 class PingTest extends PHPUnit_Framework_TestCase {
   private $reachable_host = 'www.google.com';
-  private $unreachable_host = 'www.osdifjaosdg.com';
+  private $unreachable_host = '254.254.254.254';
 
   public function testHost() {
     $first = $this->reachable_host;
@@ -33,6 +33,15 @@ class PingTest extends PHPUnit_Framework_TestCase {
     $this->assertEquals($second, $ping->getTtl());
   }
 
+  public function testTimeout() {
+    $timeout = 5;
+    $startTime = microtime(true);
+    $ping = new Ping($this->unreachable_host, 255, $timeout);
+    $ping->ping('exec');
+    $time = floor(microtime(true) - $startTime);
+    $this->assertEquals($timeout, $time);
+  }
+  
   public function testPort() {
     $port = 2222;
     $ping = new Ping($this->reachable_host);
@@ -41,11 +50,11 @@ class PingTest extends PHPUnit_Framework_TestCase {
   }
 
   public function testPingExec() {
-    $ping = new Ping('www.google.com');
+    $ping = new Ping($this->reachable_host );
     $latency = $ping->ping('exec');
     $this->assertNotEquals(FALSE, $latency);
 
-    $ping->setHost('www.sioajdsfonasdgiojsd.com');
+    $ping->setHost($this->unreachable_host);
     $latency = $ping->ping('exec');
     $this->assertEquals(FALSE, $latency);
   }
