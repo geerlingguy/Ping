@@ -1,0 +1,11 @@
+---
+# See: http://about.travis-ci.org/docs/user/languages/php/
+language: php
+
+php:
+  - 5.3
+  - 5.4
+  - 5.5
+
+script:
+  - sudo /home/travis/.phpenv/shims/phpunit --coverage-text JJG/PingTest.php

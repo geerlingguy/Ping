@@ -1,0 +1,14 @@
+{
+    "name": "geerlingguy/ping",
+    "description": "A PHP class to ping hosts.",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jeff Geerling",
+            "email": "jeff@jeffgeerling.com"
+        }
+    ],
+    "autoload": {
+        "classmap": [ "JJG/Ping.php" ]
+    }
+}
