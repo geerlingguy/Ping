@@ -39,6 +39,13 @@ class PingTest extends PHPUnit_Framework_TestCase {
     $ping->setPort($port);
     $this->assertEquals($port, $ping->getPort());
   }
+  
+  public function testIpAddress() {
+    $ping = new Ping($this->reachable_host);
+    $latency = $ping->ping('exec');
+    $this->assertNotNull($ping->getCommandOutput());
+    $this->assertEquals("74.125.21.105", $ping->getIpAddress());
+  }
 
   public function testPingExec() {
     $ping = new Ping('www.google.com');
