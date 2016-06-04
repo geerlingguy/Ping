@@ -29,6 +29,7 @@ class Ping {
   private $ttl;
   private $port = 80;
   private $data = 'Ping';
+  private $commandOutput;
 
   /**
    * Called when the Ping object is created.
@@ -123,6 +124,26 @@ class Ping {
   public function getPort() {
     return $this->port;
   }
+  
+  /**
+   * Return the command output when method=exec.
+   * @return string
+   */
+  public function getCommandOutput(){
+    return $this->commandOutput;
+  }
+  
+  /**
+   * Matches an IP on command output and returns.
+   * @return string
+   */
+  public function getIpAddress() {
+    $out = array();
+    if (preg_match('/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/', $this->commandOutput, $out)){
+      return $out[0];
+    }
+    return null;
+  }
 
   /**
    * Ping a host.
@@ -186,6 +207,7 @@ class Ping {
 
     // Strip empty lines and reorder the indexes from 0 (to make results more
     // uniform across OS versions).
+    $this->commandOutput = implode($output, '');
     $output = array_values(array_filter($output));
 
     // If the result line in the output is not empty, parse it.
