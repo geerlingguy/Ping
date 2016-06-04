@@ -41,7 +41,7 @@ class PingTest extends PHPUnit_Framework_TestCase {
     $time = floor(microtime(true) - $startTime);
     $this->assertEquals($timeout, $time);
   }
-  
+
   public function testPort() {
     $port = 2222;
     $ping = new Ping($this->reachable_host);
@@ -62,7 +62,7 @@ class PingTest extends PHPUnit_Framework_TestCase {
   }
 
   public function testPingExec() {
-    $ping = new Ping($this->reachable_host );
+    $ping = new Ping($this->reachable_host);
     $latency = $ping->ping('exec');
     $this->assertNotEquals(FALSE, $latency);
 

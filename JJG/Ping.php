@@ -214,11 +214,12 @@ class Ping {
     $ttl = escapeshellcmd($this->ttl);
     $timeout = escapeshellcmd($this->timeout);
     $host = escapeshellcmd($this->host);
+
     // Exec string for Windows-based systems.
     if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
       // -n = number of pings; -i = ttl; -w = timeout (in milliseconds).
       $exec_string = 'ping -n 1 -i ' . $ttl . ' -w ' . ($timeout * 1000) . ' ' . $host;
-    } 
+    }
     // Exec string for Darwin based systems (OS X).
     else if(strtoupper(PHP_OS) === 'DARWIN') {
       // -n = numeric output; -c = number of pings; -m = ttl; -t = timeout.
@@ -229,6 +230,7 @@ class Ping {
       // -n = numeric output; -c = number of pings; -t = ttl; -W = timeout
       $exec_string = 'ping -n -c 1 -t ' . $ttl . ' -W ' . $timeout . ' ' . $host;
     }
+
     exec($exec_string, $output, $return);
 
     // Strip empty lines and reorder the indexes from 0 (to make results more
