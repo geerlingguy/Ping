@@ -17,7 +17,7 @@
  *   $latency = $ping->ping();
  * @endcode
  *
- * @version 1.0.3
+ * @version 1.1.0
  * @author Jeff Geerling.
  */
 
@@ -124,7 +124,7 @@ class Ping {
   public function getPort() {
     return $this->port;
   }
-  
+
   /**
    * Return the command output when method=exec.
    * @return string
@@ -132,7 +132,7 @@ class Ping {
   public function getCommandOutput(){
     return $this->commandOutput;
   }
-  
+
   /**
    * Matches an IP on command output and returns.
    * @return string
