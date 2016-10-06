@@ -220,8 +220,8 @@ class Ping {
       // -n = number of pings; -i = ttl; -w = timeout (in milliseconds).
       $exec_string = 'ping -n 1 -i ' . $ttl . ' -w ' . ($timeout * 1000) . ' ' . $host;
     }
-    // Exec string for Darwin based systems (OS X).
-    else if(strtoupper(PHP_OS) === 'DARWIN') {
+    // Exec string for Darwin based systems (OS X) and FreeBSD.
+    else if(strtoupper(PHP_OS) === 'DARWIN' || strtoupper(PHP_OS) === 'FREEBSD') {
       // -n = numeric output; -c = number of pings; -m = ttl; -t = timeout.
       $exec_string = 'ping -n -c 1 -m ' . $ttl . ' -t ' . $timeout . ' ' . $host;
     }
