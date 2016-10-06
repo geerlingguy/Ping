@@ -54,4 +54,4 @@ $ping->setHost('www.anotherexample.com');
 
 ## License
 
-Imap is licensed under the MIT (Expat) license. See included LICENSE.md.
+Ping is licensed under the MIT (Expat) license. See included LICENSE.md.
