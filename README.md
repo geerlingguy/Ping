@@ -28,18 +28,20 @@ else {
 }
 ```
 
-You can also specify the ttl (maximum hops) when creating the instance:
+You can also specify the ttl (maximum hops) and timeout when creating the instance:
 
 ```php
 $ttl = 128;
-$ping = new Ping($host, $ttl);
+$timeout = 5;
+$ping = new Ping($host, $ttl, $timeout);
 ```
 
-...or using the `setTtl()` method:
+...or using the `setTtl()` or `setTimeout()` methods:
 
 ```php
 $ping = new Ping($host);
 $ping->setTtl(128);
+$ping->setTimeout(5);
 ```
 
 You can change the host using the `setHost()` method:
@@ -52,4 +54,4 @@ $ping->setHost('www.anotherexample.com');
 
 ## License
 
-Imap is licensed under the MIT (Expat) license. See included LICENSE.md.
+Ping is licensed under the MIT (Expat) license. See included LICENSE.md.

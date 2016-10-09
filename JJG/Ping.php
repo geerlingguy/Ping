@@ -17,7 +17,7 @@
  *   $latency = $ping->ping();
  * @endcode
  *
- * @version 1.0.3
+ * @version 1.1.0
  * @author Jeff Geerling.
  */
 
@@ -27,9 +27,11 @@ class Ping {
 
   private $host;
   private $ttl;
+  private $timeout;
   private $path;
   private $port = 80;
   private $data = 'Ping';
+  private $commandOutput;
 
    /**
    * Called when the Ping object is created.
@@ -49,18 +51,21 @@ class Ping {
    *   The TTL is also used as a general 'timeout' value for fsockopen(), so if
    *   you are using that method, you might want to set a default of 5-10 sec to
    *   avoid blocking network connections.
+   * @param int $timeout
+   *   Timeout (in seconds) used for ping and fsockopen().
    * @param string $path
    *   Full path to your ping command. (e.g. /bin/ping on Linux)
    *
    * @throws \Exception if the host is not set.
    */
-  public function __construct($host, $ttl = 255, $path = 'ping') {
+  public function __construct($host, $ttl = 255, $timeout = 10, $path = 'ping') {
     if (!isset($host)) {
       throw new \Exception("Error: Host name not supplied.");
     }
 
     $this->host = $host;
     $this->ttl = $ttl;
+    $this->timeout = $timeout;
     $this->path = $path;
   }
 
@@ -82,6 +87,26 @@ class Ping {
    */
   public function getTtl() {
     return $this->ttl;
+  }
+
+  /**
+   * Set the timeout.
+   *
+   * @param int $timeout
+   *   Time to wait in seconds.
+   */
+  public function setTimeout($timeout) {
+    $this->timeout = $timeout;
+  }
+
+  /**
+   * Get the timeout.
+   *
+   * @return int
+   *   Current timeout for Ping.
+   */
+  public function getTimeout() {
+    return $this->timeout;
   }
 
   /**
@@ -126,6 +151,26 @@ class Ping {
    */
   public function getPort() {
     return $this->port;
+  }
+
+  /**
+   * Return the command output when method=exec.
+   * @return string
+   */
+  public function getCommandOutput(){
+    return $this->commandOutput;
+  }
+
+  /**
+   * Matches an IP on command output and returns.
+   * @return string
+   */
+  public function getIpAddress() {
+    $out = array();
+    if (preg_match('/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/', $this->commandOutput, $out)){
+      return $out[0];
+    }
+    return null;
   }
 
   /**
@@ -175,22 +220,30 @@ class Ping {
     $latency = false;
 
     $ttl = escapeshellcmd($this->ttl);
+    $timeout = escapeshellcmd($this->timeout);
     $host = escapeshellcmd($this->host);
     $path = escapeshellcmd($this->path);
     // Exec string for Windows-based systems.
     if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-      // -n = number of pings; -i = ttl.
-      $exec_string = $path . ' -n 1 -i ' . $ttl . ' ' . $host;
+      // -n = number of pings; -i = ttl; -w = timeout (in milliseconds).
+      $exec_string = $path . ' -n 1 -i ' . $ttl . ' -w ' . ($timeout * 1000) . ' ' . $host;
     }
-    // Exec string for UNIX-based systems (Mac, Linux).
+    // Exec string for Darwin based systems (OS X).
+    else if(strtoupper(PHP_OS) === 'DARWIN') {
+      // -n = numeric output; -c = number of pings; -m = ttl; -t = timeout.
+      $exec_string = $path . ' -n -c 1 -m ' . $ttl . ' -t ' . $timeout . ' ' . $host;
+    }
+    // Exec string for other UNIX-based systems (Linux).
     else {
-      // -n = numeric output; -c = number of pings; -t = ttl.
-      $exec_string = $path . ' -n -c 1 -t ' . $ttl . ' ' . $host;
+      // -n = numeric output; -c = number of pings; -t = ttl; -W = timeout
+      $exec_string = $path . ' -n -c 1 -t ' . $ttl . ' -W ' . $timeout . ' ' . $host;
     }
+
     exec($exec_string, $output, $return);
 
     // Strip empty lines and reorder the indexes from 0 (to make results more
     // uniform across OS versions).
+    $this->commandOutput = implode($output, '');
     $output = array_values(array_filter($output));
 
     // If the result line in the output is not empty, parse it.
@@ -219,7 +272,7 @@ class Ping {
     $start = microtime(true);
     // fsockopen prints a bunch of errors if a host is unreachable. Hide those
     // irrelevant errors and deal with the results instead.
-    $fp = @fsockopen($this->host, $this->port, $errno, $errstr, $this->ttl);
+    $fp = @fsockopen($this->host, $this->port, $errno, $errstr, $this->timeout);
     if (!$fp) {
       $latency = false;
     }
