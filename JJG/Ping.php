@@ -33,7 +33,7 @@ class Ping {
   private $data = 'Ping';
   private $commandOutput;
 
-   /**
+  /**
    * Called when the Ping object is created.
    *
    * @param string $host
