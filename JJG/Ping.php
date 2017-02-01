@@ -194,6 +194,8 @@ class Ping {
       case 'socket':
         $latency = $this->pingSocket();
         break;
+      default:
+        throw new \InvalidArgumentException('unsupported ping method');
     }
 
     // Return the latency.
