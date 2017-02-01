@@ -176,6 +176,8 @@ class Ping {
    *     - socket: Creates a RAW network socket. Only usable in some
    *       environments, as creating a SOCK_RAW socket requires root privileges.
    *
+   * @throws InvalidArgumentException if $method is not supported
+   *
    * @return mixed
    *   Latency as integer, in ms, if host is reachable or FALSE if host is down.
    */
