@@ -176,7 +176,7 @@ class Ping {
    *     - socket: Creates a RAW network socket. Only usable in some
    *       environments, as creating a SOCK_RAW socket requires root privileges.
    *
-   * @throws InvalidArgumentException if $method is not supported
+   * @throws InvalidArgumentException if $method is not supported.
    *
    * @return mixed
    *   Latency as integer, in ms, if host is reachable or FALSE if host is down.
@@ -198,7 +198,7 @@ class Ping {
         break;
 
       default:
-        throw new \InvalidArgumentException('unsupported ping method');
+        throw new \InvalidArgumentException('Unsupported ping method.');
     }
 
     // Return the latency.
