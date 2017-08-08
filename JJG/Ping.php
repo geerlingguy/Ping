@@ -234,6 +234,11 @@ class Ping {
     else {
       // -n = numeric output; -c = number of pings; -t = ttl; -W = timeout
       $exec_string = 'ping -n -c 1 -t ' . $ttl . ' -W ' . $timeout . ' ' . $host . ' 2>&1';
+
+      if (strpos(shell_exec('ping --help 2>&1'), '--ttl=') !== false) {
+        // -n = numeric output; -c = number of pings; --ttl = ttl; -W = timeout
+        $exec_string = 'ping -n -c 1 --ttl=' . $ttl . ' -W ' . $timeout . ' ' . $host . ' 2>&1';
+      }
     }
 
     exec($exec_string, $output, $return);
