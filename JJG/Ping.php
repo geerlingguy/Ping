@@ -210,7 +210,7 @@ class Ping {
    * the input to the system. This is potentially VERY dangerous if you pass in
    * any user-submitted data. Be SURE you sanitize your inputs!
    *
-   * @return int
+   * @return float
    *   Latency, in ms.
    */
   private function pingExec() {
@@ -250,7 +250,7 @@ class Ping {
 
       // If there's a result and it's greater than 0, return the latency.
       if ($response > 0 && isset($matches['time'])) {
-        $latency = round($matches['time']);
+        $latency = round($matches['time'], 4);
       }
     }
 
@@ -262,7 +262,7 @@ class Ping {
    * is often the fastest, but not necessarily the most reliable. Even if a host
    * doesn't respond, fsockopen may still make a connection.
    *
-   * @return int
+   * @return float
    *   Latency, in ms.
    */
   private function pingFsockopen() {
@@ -275,7 +275,7 @@ class Ping {
     }
     else {
       $latency = microtime(true) - $start;
-      $latency = round($latency * 1000);
+      $latency = round($latency * 1000, 4);
     }
     return $latency;
   }
@@ -287,7 +287,7 @@ class Ping {
    * only works reliably on Windows systems and on Linux servers where the
    * script is not being run as a web user.
    *
-   * @return int
+   * @return float
    *   Latency, in ms.
    */
   private function pingSocket() {
@@ -318,7 +318,7 @@ class Ping {
       @socket_send($socket, $package, strlen($package), 0);
       if (socket_read($socket, 255) !== false) {
         $latency = microtime(true) - $start;
-        $latency = round($latency * 1000);
+        $latency = round($latency * 1000, 4);
       }
       else {
         $latency = false;
