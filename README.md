@@ -55,3 +55,7 @@ $ping->setHost('www.anotherexample.com');
 ## License
 
 Ping is licensed under the MIT (Expat) license. See included LICENSE.md.
+
+## Author
+
+Ping is maintained by [Jeff Geerling](https://www.jeffgeerling.com), and is used to check servers for [Server Check.in](https://servercheck.in), an inexpensive website and server uptime monitoring service.
