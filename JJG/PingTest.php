@@ -5,13 +5,16 @@
  * Tests for Ping.
  */
 
+use PHPUnit\Framework\TestCase;
+
 // TODO - Use autoloading someday.
 include_once('Ping.php');
 use JJG\Ping as Ping;
 
-class PingTest extends PHPUnit_Framework_TestCase {
+class PingTest extends TestCase {
   private $reachable_host = 'www.google.com';
   private $unreachable_host = '254.254.254.254';
+  private $low_latency_host = '127.0.0.1';
 
   public function testHost() {
     $first = $this->reachable_host;
@@ -40,6 +43,14 @@ class PingTest extends PHPUnit_Framework_TestCase {
     $ping->ping('exec');
     $time = floor(microtime(true) - $startTime);
     $this->assertEquals($timeout, $time);
+  }
+
+  public function testLowLatencyHost() {
+    $low_latency = $this->low_latency_host;
+    $ping = new Ping($low_latency);
+    $ping->ping('exec');
+    $latency = $ping->ping();
+    $this->assertGreaterThan(0, $latency);
   }
 
   public function testPort() {
