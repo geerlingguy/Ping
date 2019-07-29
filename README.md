@@ -10,8 +10,6 @@ There are a ton of different methods of pinging a server using PHP, and I've fou
 
 Therefore, I've created this simple class, which incorporates the three most popular ping methods (`exec()` with the system's `ping` utility, `fsockopen()`, and `socket_create()`). Each method has it's benefits and drawbacks, and may work better or worse on a particular system.
 
-Ping was created by [Jeff Geerling](http://www.lifeisaprayer.com/) of [Midwestern Mac, LLC](http://www.midwesternmac.com/) in 2012.
-
 ## Usage
 
 This is a very simple class. Just create an instance, and run `ping()`.
