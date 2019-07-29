@@ -179,7 +179,7 @@ class Ping {
    * @throws InvalidArgumentException if $method is not supported.
    *
    * @return mixed
-   *   Latency as integer, in ms, if host is reachable or FALSE if host is down.
+   *   Latency as float, in ms, if host is reachable or FALSE if host is down.
    */
   public function ping($method = 'exec') {
     $latency = false;
@@ -240,7 +240,7 @@ class Ping {
 
     // Strip empty lines and reorder the indexes from 0 (to make results more
     // uniform across OS versions).
-    $this->commandOutput = implode($output, '');
+    $this->commandOutput = implode('', $output);
     $output = array_values(array_filter($output));
 
     // If the result line in the output is not empty, parse it.
