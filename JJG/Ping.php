@@ -31,6 +31,7 @@ class Ping {
   private $port = 80;
   private $data = 'Ping';
   private $commandOutput;
+  private $keyword = 'time';
 
   /**
    * Called when the Ping object is created.
@@ -166,6 +167,19 @@ class Ping {
   }
 
   /**
+   * Set the keyword (only used for exec method).
+   *
+   * In different OS languages, the ping command may respond translated output instead of the english 'time'
+   * This is only used for the exec method, which scans the output for a specific string to fetch the latency time
+   *
+   * @param string $keyword
+   *   keyword to use to search scan the output for the latency time (defaults to 'time').
+   */
+  public function setKeyword($keyword) {
+    $this->keyword = $keyword;
+  }
+
+  /**
    * Ping a host.
    *
    * @param string $method
@@ -243,14 +257,18 @@ class Ping {
     $this->commandOutput = implode('', $output);
     $output = array_values(array_filter($output));
 
+    //At least on windows the first line is always empty
+    if(empty($output[0])){
+      array_shift($output);
+    }
     // If the result line in the output is not empty, parse it.
     if (!empty($output[1])) {
-      // Search for a 'time' value in the result line.
-      $response = preg_match("/time(?:=|<)(?<time>[\.0-9]+)(?:|\s)ms/", $output[1], $matches);
+      // Search for a the keyword value in the result line.
+      $response = preg_match("/".$this->keyword."(?:=|<)(?<".$this->keyword.">[\.0-9]+)(?:|\s)ms/", $output[1], $matches);
 
       // If there's a result and it's greater than 0, return the latency.
-      if ($response > 0 && isset($matches['time'])) {
-        $latency = round($matches['time'], 4);
+      if ($response > 0 && isset($matches[$this->keyword])) {
+        $latency = round($matches[$this->keyword], 4);
       }
     }
 
