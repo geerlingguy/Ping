@@ -5,7 +5,7 @@
  *
  * This class pings a host.
  *
- * The ping() method pings a server using 'exec', 'socket', or 'fsockopen', and
+ * The ping() method pings a server using 'secure-exec' (works only for IP-addresses yet), 'exec', 'socket', or 'fsockopen', and
  * and returns FALSE if the server is unreachable within the given ttl/timeout,
  * or the latency in milliseconds if the server is reachable.
  *
@@ -185,6 +185,10 @@ class Ping {
     $latency = false;
 
     switch ($method) {
+        case 'secure-exec':
+        $latency = $this->pingSecureExec();
+        break;
+       
       case 'exec':
         $latency = $this->pingExec();
         break;
@@ -204,21 +208,36 @@ class Ping {
     // Return the latency.
     return $latency;
   }
+  
+   /**
+   * The exec method uses the sanitized exec() function.
+   *
+   * @return float
+   *   Latency, in ms.
+   */
+  private function pingSecureExec(){
+    return $this->pingExec(true); 
+  }
 
   /**
-   * The exec method uses the possibly insecure exec() function, which passes
+   * The exec method uses the possibly insecure exec() function when you set , which passes
    * the input to the system. This is potentially VERY dangerous if you pass in
    * any user-submitted data. Be SURE you sanitize your inputs!
    *
    * @return float
    *   Latency, in ms.
    */
-  private function pingExec() {
+  private function pingExec(bool $secure=false) {
     $latency = false;
 
     $ttl = escapeshellcmd($this->ttl);
     $timeout = escapeshellcmd($this->timeout);
     $host = escapeshellcmd($this->host);
+    
+    // if enabled check IP-address
+    if ($secure===true && filter_var($ip, FILTER_VALIDATE_IP)===false){
+      return "This is not a valid IP address
+    }
 
     // Exec string for Windows-based systems.
     if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
