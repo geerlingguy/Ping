@@ -236,7 +236,7 @@ class Ping {
     
     // if enabled check IP-address
     if ($secure===true && filter_var($ip, FILTER_VALIDATE_IP)===false){
-      return "This is not a valid IP address
+      return "This is not a valid IP address";
     }
 
     // Exec string for Windows-based systems.
