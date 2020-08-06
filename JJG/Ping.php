@@ -245,8 +245,8 @@ class Ping {
 
     // If the result line in the output is not empty, parse it.
     if (!empty($output[1])) {
-      // Search for a 'time' value in the result line.
-      $response = preg_match("/time(?:=|<)(?<time>[\.0-9]+)(?:|\s)ms/", $output[1], $matches);
+      // Search for a time value in the result line.
+      $response = preg_match("/(?:\w=|\w<)(?<time>[\.0-9]+)(?:|\s)ms/", $output[1], $matches);
 
       // If there's a result and it's greater than 0, return the latency.
       if ($response > 0 && isset($matches['time'])) {
