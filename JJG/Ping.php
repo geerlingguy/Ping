@@ -236,7 +236,10 @@ class Ping {
       $exec_string = 'ping -n -c 1 -t ' . $ttl . ' -W ' . $timeout . ' ' . $host . ' 2>&1';
     }
 
-    exec($exec_string, $output, $return);
+    $result = @exec($exec_string, $output, $return);
+    if ($result === false) {
+        return $latency;
+    }
 
     // Strip empty lines and reorder the indexes from 0 (to make results more
     // uniform across OS versions).
