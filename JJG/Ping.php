@@ -271,12 +271,11 @@ class Ping {
     // irrelevant errors and deal with the results instead.
     $fp = @fsockopen($this->host, $this->port, $errno, $errstr, $this->timeout);
     if (!$fp) {
-      $latency = false;
+      return false;
     }
-    else {
-      $latency = microtime(true) - $start;
-      $latency = round($latency * 1000, 4);
-    }
+    $latency = microtime(true) - $start;
+    $latency = round($latency * 1000, 4);
+    fclose($fp);
     return $latency;
   }
 
